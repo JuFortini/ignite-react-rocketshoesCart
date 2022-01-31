@@ -9,11 +9,10 @@ import { useCart } from '../../hooks/useCart';
 import { formatPrice } from '../../util/format';
 import { Container, ProductTable, Total } from './styles';
 
-interface ProductFormatted {
+interface Product {
   id: number;
   title: string;
-  priceFormatted: string;
-  subTotal: string,
+  price: number;
   image: string;
   amount: number;
 }
@@ -22,12 +21,9 @@ const Cart = (): JSX.Element => {
   const { cart, removeProduct, updateProductAmount } = useCart();
 
   const cartFormatted = cart.map(product => ({
-    id: product.id,
-    title: product.title,
+    ...product, 
     priceFormatted: formatPrice(product.price),
-    subTotal: formatPrice(product.price * product.amount),
-    image: product.image,
-    amount: product.amount
+    subTotal: formatPrice(product.price * product.amount)
   }))
   const total =
     formatPrice(
@@ -38,13 +34,13 @@ const Cart = (): JSX.Element => {
       }, 0)
     )
   
-  async function handleProductIncrement(product: ProductFormatted) {
+  async function handleProductIncrement(product: Product) {
     const productId = product.id;
     const amount = product.amount + 1
     updateProductAmount({ productId, amount })
   }
 
-  async function handleProductDecrement(product: ProductFormatted) {
+  async function handleProductDecrement(product: Product) {
     const productId = product.id;
     const amount = product.amount - 1;
     updateProductAmount({ productId, amount });
@@ -52,7 +48,7 @@ const Cart = (): JSX.Element => {
   }
 
   function handleRemoveProduct(productId: number) {
-    removeProduct(productId)
+    removeProduct(productId);
   }
 
   return (
@@ -69,7 +65,7 @@ const Cart = (): JSX.Element => {
         </thead>
         <tbody>
           {cartFormatted.map(product => (
-            <tr key={product.id}>
+            <tr key={product.id} data-testid="product">
               <td>
                 <img src={product.image} alt={product.title} />
               </td>
